@@ -1,0 +1,23 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+ 
+# Python:
+*.py[cod]
+*.so
+*.egg
+*.egg-info
+dist
+build
+ 
+# My configurations:
+test.py
+tests.py
+NDMS_settings.py
+crt_telnet/
+cutting_query_result/
+db.sqlite3
+readme
+.gitignore
+.idea/

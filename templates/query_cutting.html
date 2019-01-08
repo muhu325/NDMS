@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>割接确认快速查询</title>
+    <style>
+        .hide{display: none}
+    </style>
+</head>
+<body>
+<a href="/logout" style="float: right">退出登录</a>
+<a href="/query_crt" style="float: right;padding-right: 20px">onu快查CRT</a>
+<a href="/sql_syslog_query" style="float: right;padding-right: 20px">syslog快查</a>
+<form action="/sql_cutting_query" method="post" style="display: inline-block;padding-right: 100px;">
+        <div>
+            <div style="font-size: 25px">割接确认快速查询</div>
+            <div><textarea  type="text" name="cutting_words"  placeholder="高优先级匹配若有结果，则不继续向下匹配
+匹配优先级1：ip+端口，例如 10.0.0.1 olt2/0/1
+匹配优先级2：配置信息，例如 0227E-B.7602S.15
+匹配优先级3：业务编码，例如 D_D00_21025829
+匹配优先级4：分光器编号，例如 1127e-ar
+
+目前存在2套割接确认系统：
+http://10.0.0.25:8000/sql_cutting_query
+http://10.0.0.45:8000/sql_cutting_query
+其实2套割接确认系统是一样的，只是10.0.0.45大部分路由被防火墙策略限制，但可以访问核心设备。
+目前核心设备的端口确认只支持匹配IP+端口的形式，例如 218.108.255.89 xe-1/1/1
+
+10.0.0.25和10.0.0.45的详细区别如下：
+10.0.0.25和使用山石VPN时一样
+10.0.0.45无法访问rmss平台（影响通过业务编码匹配的确认）
+         10段路由不通  涉及汇聚POP、接入网交换机
+         30段路由不通，涉及CMTS POP、BRAS、POP
+         125段路由不通  125.210.128.248--HZD3Z-P2P-7609-02#
+         218.109段不通  涉及郊县BRAS、AC
+" style="width: 1000px;height: 300px" >{{ string }}</textarea></div>
+            <input type="button" value="割接后确认，展开输入割接前数据" onclick="showhide()">
+            <div class="hide"><textarea  type="text" name="previous_online_onu_mac_result"  placeholder="将excel表中的查询结果(JSON字符串）复制过来即可" style="width: 1000px;height: 130px" ></textarea></div>
+        </div>
+        {% csrf_token %}
+    <div>友情提示：每查询一条数据大约需要2-10秒；20条数据则需要约100秒。若时间太长，不排除查询某条数据时，卡死的可能；可以分批量查询<input type="submit" value="点击查询" style="margin-left: 730px"></div>
+</form>
+{% if download_url %}
+<a style="margin-left: 800px" href={{ download_url }} >点击下载查询结果</a>
+{% endif %}
+
+
+
+
+
+
+
+    <!--style='white-space:pre;总算找到了，&nbsp;只有在.html中才有效，即使在web页面编辑也是无效-->
+    <!--div若想监控keydown，必须设置tabindex="1"-->
+    <div id="query_cutting_info" style='white-space:pre;background-color: black;color:#00FF00;font-size: 15px;font-weight: 500;line-height: 12pt' tabindex="1">{{ query_result }}</div>
+
+
+
+
+
+</body>
+<script src="/statics/jquery-2.1.4.min.js"></script>
+<script>
+    function showhide() {
+        $(".hide").removeClass("hide")
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</html>

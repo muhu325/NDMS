@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div>
+        请输入账号密码；无密码验证功能，请自行核对好账号密码
+        <form action="/login" method="post">
+            <input type="text" name="username">
+            <input type="password" name="password">
+            <input type="submit">
+            {% csrf_token %}
+        </form>
+    </div>
+</body>
+</html>

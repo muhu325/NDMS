@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ONU查询系统</title>
+    <style>
+        .hide{display: none}
+        {#span{display: inline-block}#}
+        {#.rmss_label{float: right;padding-left: 300px;}#}
+    </style>
+</head>
+<body>
+<div style="font-size: 25px">telnet CRT版</div>
+<form action="/query_crt" method="post" style="display: inline-block;padding-right: 100px">
+        <span >
+            <span>输入onu mac</span>
+            <span><input type="text" name="query_keywords"  placeholder="输入ONU MAC" style="width: 170px" value="{{ onu_mac }}"></span>
+            <span><input type="text" style="display: none" name="actions" value="query_onu"></span>
+        </span>
+    {% csrf_token %}
+    <div><input type="submit" class="close_websocket"></div>
+</form>
+<form action="/query_crt" method="post" style="display: inline-block;padding-right: 80px">
+        <span >
+            <span>输入分光器编号</span>
+            <span><input type="text" name="query_keywords"  placeholder="输入分光器编号" style="width: 170px" value="{{ olt_name }}"></span>
+            <span><input type="text" style="display: none" name="actions" value="query_olt"></span>
+        </span>
+    {% csrf_token %}
+    <div><input type="submit" class="close_websocket"><span style="font-size: 8px">只能查询设备上有描述的olt口</span></div>
+</form>
+<form action="/query_crt" method="post" style="display: inline-block;">
+        <span >
+            <span>输入RMSS业务编码</span>
+            <span><input type="text" name="query_keywords"  placeholder="输入RMSS业务编码" style="width: 170px" value="{{ rmss_id_code }}"></span>
+            <span><input type="text" style="display: none" name="actions" value="query_rmss"></span>
+
+        </span>
+    {% csrf_token %}
+    <div><input type="submit" class="close_websocket"><span style="font-size: 8px">查询关键字尽可能准确，否则将爬取大量信息，造成查询过慢</span></div>
+</form>
+<a href="/logout"  style="float: right">退出登录</a>
+<a href="/sql_syslog_query" style="float: right;padding-right: 20px">syslog快查</a>
+<a href="/sql_cutting_query" style="float: right;padding-right: 20px">割接快查</a>
+<a  id="scroll_to_top" style="position: fixed;bottom: 100px;right: 50px;color:red">点击返回顶部</a>
+
+    <div>
+        {{ message }}
+        {% for i in obj_onu_list %}
+            <div>复制故障
+                {% if i.tag == "瑞斯onu" %}
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}查看onu" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="查看onu" class="copy_check_onu{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}更换onu" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="更换onu" class="copy_repalce_onu{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}拨号691" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="拨号691" class="copy_dial691{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}拨号678" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="拨号678" class="copy_dial678{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}点播故障" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="点播故障" class="copy_wasutv{{ i.id }}" style="margin-top: 20px">
+                {% else %}
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}查看onu" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="查看onu" class="copy_check_onu{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}更换onu" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="更换onu" class="copy_repalce_onu{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}拨号691" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="拨号691" class="copy_dial691{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}拨号678" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="拨号678" class="copy_dial678{{ i.id }}" style="margin-top: 20px">
+                    <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}点播故障" style="position: absolute;opacity: 0;z-index: -100">
+                    <input type="button" value="点播故障" class="copy_wasutv{{ i.id }}" style="margin-top: 20px">
+                {% endif %}
+
+                <input  type="text" value="{{ i.olt.epon.IP }}" style="position: absolute;opacity: 0;width: 1px;height: 1px">
+                <input type="button" value="复制IP" class="copy_ip{{ i.id }}">
+            </div>
+
+
+
+
+            <div>软件版本：{{ i.olt.epon.tag.version.name }}管理ip：{{ i.olt.epon.IP }}；分光器编号：{{ i.olt.name }}；onu接口：{{ i.interface }}；onu mac-addr:{{ i.mac }}
+                <input  class="query_onu" type="button" value="CRT查看设备" nid="{{ i.olt.epon.IP }}#{{ i.olt.epon.tag.version.name }}#{{ i.interface }}">
+            </div>
+            <div style="padding-left: 50px;width: 900px;font-size: 14px;font-weight: bolder">
+                {% if i.rmss_result %}
+                    {% for dict1 in i.rmss_list %}
+                        <div style="padding-bottom: 30px">
+                            <div style="float: left;width: 450px">
+                                <div><span>用户编号：{{ dict1.id_bussiness_code }}</span></div>
+                                <div><span>MAC：{{ dict1.id_mac_onu }}</span></div>
+                                <div><span>备注：{{ dict1.id_remark1 }}</span></div>
+                                <div><span>vlan编号：{{ dict1.vlan }}</span></div>
+                                <div><span>VPN名称：{{ dict1.id_vpn_name }}</span></div>
+                            </div>
+                            <div style="float: left;width: 450px">
+                                <div><span class="rmss_label">配置信息：{{ dict1.id_code }}</span></div>
+                                <div><span class="rmss_label">业务类型：{{ dict1.id_bussiness_type }}</span></div>
+                                <div><span class="rmss_label">带宽：{{ dict1.id_bandwidth }}</span></div>
+                                <div><span class="rmss_label">用户自用IP网关：{{ dict1.id_user_gateway }}</span></div>
+                                <div><span class="rmss_label">用户类型：{{ dict1.id_user_type }}</span></div>
+                            </div>
+                            <div><span>接入单位：{{ dict1.id_unit }}</span></div>
+                            <div><span>用户地址：{{ dict1.id_user_address }}</span></div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {{ i.rmss_list }}
+                {% endif %}
+            </div>
+
+        {% endfor %}
+
+        {% for i in obj_olt_list %}
+            {% if i.tag == "瑞斯onu" %}
+            <input type="text" value="{{ i.tag }}-{{ i.epon.IP }}-olt {{ i.interface }}" style="position: absolute;opacity: 0;z-index: -100">
+            {% else %}
+            <input type="text" value="{{ i.tag }}-{{ i.epon.IP }}-{{ i.interface }}" style="position: absolute;opacity: 0;z-index: -100">
+            {% endif %}
+            <input type="button" value="复制故障名称" class="copy_ticket{{ i.id }}" style="margin-top: 20px">
+            <input type="text" value="{{ i.epon.IP }}" style="position: absolute;opacity: 0;width: 1px;height: 1px">
+            <input type="button" value="复制ip" class="copy_ip{{ i.id }}">
+
+            <div>软件版本：{{ i.epon.tag.version.name }}管理ip：{{ i.epon.IP }}；分光器编号：{{ i.name }}；olt口编号：{{ i.interface }}；
+                <input class="query_olt" type="button" value="CRT查看设备" nid="{{ i.epon.IP }}#{{ i.epon.tag.version.name }}#{{ i.interface }}">
+            </div>
+            <!-- {% for w in i.onu_set.all %}
+                <div>onu接口：{{ w.interface }}；onu mac-addr:{{ w.mac }}</div>
+            {% endfor %} -->
+        {% endfor %}
+
+
+        {% for rmssinfo in rmss_info_list %}
+            <div style="padding-left: 50px;width: 900px;font-size: 14px;font-weight: bolder;padding-top: 10px">
+                <div style="float: left;width: 450px">
+                    <div><span>用户编号：{{ rmssinfo.rmss_info.id_bussiness_code }}</span></div>
+                    <div><span>MAC：{{ rmssinfo.rmss_info.id_mac_onu }}</span></div>
+                    <div><span>备注：{{ rmssinfo.rmss_info.id_remark1 }}</span></div>
+                    <div><span>vlan编号：{{ rmssinfo.rmss_info.vlan }}</span></div>
+                    <div><span>VPN名称：{{ rmssinfo.rmss_info.id_vpn_name }}</span></div>
+                </div>
+                <div style="float: left;width: 450px">
+                    <div><span class="rmss_label">配置信息：{{ rmssinfo.rmss_info.id_code }}</span></div>
+                    <div><span class="rmss_label">业务类型：{{ rmssinfo.rmss_info.id_bussiness_type }}</span></div>
+                    <div><span class="rmss_label">带宽：{{ rmssinfo.rmss_info.id_bandwidth }}</span></div>
+                    <div><span class="rmss_label">用户自用IP网关：{{ rmssinfo.rmss_info.id_user_gateway }}</span></div>
+                    <div><span class="rmss_label">用户类型：{{ rmssinfo.rmss_info.id_user_type }}</span></div>
+                </div>
+                <div><span>接入单位：{{ rmssinfo.rmss_info.id_unit }}</span></div>
+                <div><span>用户地址：{{ rmssinfo.rmss_info.id_user_address }}</span></div>
+            </div>
+            <div style="padding-bottom: 50px">
+            {% if not rmssinfo.objs_onu_list %}
+                <div>数据库中无onu与该业务对应，请去资源管理系统核查</div>
+            {% endif %}
+            {% for i in rmssinfo.objs_onu_list %}
+                <div>
+                    <div>复制故障
+                        {% if i.tag == "瑞斯onu" %}
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}查看onu" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="查看onu" class="copy_check_onu{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}更换onu" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="更换onu" class="copy_repalce_onu{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}拨号691" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="拨号691" class="copy_dial691{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}拨号678" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="拨号678" class="copy_dial678{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-onu {{ i.interface }}点播故障" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="点播故障" class="copy_wasutv{{ i.id }}" >
+                        {% else %}
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}查看onu" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="查看onu" class="copy_check_onu{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}更换onu" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="更换onu" class="copy_repalce_onu{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}拨号691" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="拨号691" class="copy_dial691{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}拨号678" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="拨号678" class="copy_dial678{{ i.id }}" >
+                            <input type="text" value="{{ i.tag }}-{{ i.olt.epon.IP }}-{{ i.interface }}点播故障" style="position: absolute;opacity: 0;z-index: -100">
+                            <input type="button" value="点播故障" class="copy_wasutv{{ i.id }}" >
+                        {% endif %}
+                        <input  type="text" value="{{ i.olt.epon.IP }}" style="position: absolute;opacity: 0;width: 1px;height: 1px">
+                        <input type="button" value="复制IP" class="copy_ip{{ i.id }}">
+                    </div>
+
+                    <div>软件版本：{{ i.olt.epon.tag.version.name }}管理ip：{{ i.olt.epon.IP }}；分光器编号：{{ i.olt.name }}；onu接口：{{ i.interface }}；onu mac-addr:{{ i.mac }}
+                        <input  class="query_onu" type="button" value="CRT查看设备" nid="{{ i.olt.epon.IP }}#{{ i.olt.epon.tag.version.name }}#{{ i.interface }}">
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+
+
+
+
+        {% endfor %}
+
+    </div>
+
+
+
+
+</body>
+<script src="/statics/jquery-2.1.4.min.js"></script>
+
+<script>
+    $(function () {
+        BindQueryOnuInfo();
+        BindQueryOltInfo();
+    });
+
+    //点击CRT查看设备按钮时，触发该方法
+    function BindQueryOnuInfo() {
+        $('.query_onu,.query_rmss').click(function () {
+            var str111 = $(this).attr("nid");
+            var a =str111.split("#");
+            var ip_addr = a[0];
+            var pon_ver = a[1];
+            var onu_interface = a[2];
+            console.log(ip_addr,pon_ver,onu_interface)
+            $.get("/query_crt",{
+                query_type:"onu",
+                telnet_ip:ip_addr,
+                version:pon_ver,
+                onu_interface:onu_interface,
+                success:function(){
+                    window.location.href="Telnetbycrt://"
+                }});
+        });
+        }
+    //点击CRT查看设备按钮时，触发该方法
+    function BindQueryOltInfo() {
+        $('.query_olt').click(function () {
+            var str111 = $(this).attr("nid");
+            var a =str111.split("#");
+            var ip_addr = a[0];
+            var pon_ver = a[1];
+            var olt_interface = a[2];
+            $.get("/query_crt",{
+                query_type:"olt",
+                telnet_ip:ip_addr,
+                version:pon_ver,
+                olt_interface:olt_interface,
+                success:function(){
+                    window.location.href="Telnetbycrt://"
+                }});
+        });
+        }
+
+
+
+
+
+
+    //用于复制故障单名称和管理ip
+    {% for i in obj_onu_list %}
+
+        $(".copy_check_onu{{ i.id }}").click(function () {
+            var obj1 = $(".copy_check_onu{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_repalce_onu{{ i.id }}").click(function () {
+            var obj1 = $(".copy_repalce_onu{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_dial691{{ i.id }}").click(function () {
+            var obj1 = $(".copy_dial691{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_dial678{{ i.id }}").click(function () {
+            var obj1 = $(".copy_dial678{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_wasutv{{ i.id }}").click(function () {
+            var obj1 = $(".copy_wasutv{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_ip{{ i.id }}").click(function () {
+            var obj1 = $(".copy_ip{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+
+    {% endfor %}
+
+    {% for i in obj_olt_list %}
+        $(".copy_ticket{{ i.id }}").click(function () {
+            var obj1 = $(".copy_ticket{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+        $(".copy_ip{{ i.id }}").click(function () {
+            var obj1 = $(".copy_ip{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+
+    {% endfor %}
+
+    {% for rmssinfo in rmss_info_list %}
+        {% for i in rmssinfo.objs_onu_list %}
+
+        $(".copy_check_onu{{ i.id }}").click(function () {
+            var obj1 = $(".copy_check_onu{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_repalce_onu{{ i.id }}").click(function () {
+            var obj1 = $(".copy_repalce_onu{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_dial691{{ i.id }}").click(function () {
+            var obj1 = $(".copy_dial691{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_dial678{{ i.id }}").click(function () {
+            var obj1 = $(".copy_dial678{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_wasutv{{ i.id }}").click(function () {
+            var obj1 = $(".copy_wasutv{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。visibility: hidden也不行
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+        $(".copy_ip{{ i.id }}").click(function () {
+            var obj1 = $(".copy_ip{{ i.id }}").prev()[0];//通过js获取对象，再[0]转化为标准的document标签对象
+            obj1.select();//选择对象:必须是input对象，还不能被隐藏。。。。
+            //最终选择配置position: absolute;opacity: 0;z-index: -100
+            document.execCommand("Copy");//执行浏览器复制命令
+        });
+
+
+        {% endfor %}
+    {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</html>

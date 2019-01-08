@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>syslog告警快速查询</title>
+    <style>
+        .hide{display: none}
+    </style>
+</head>
+<body>
+<form action="/sql_syslog_query" method="post" style="display: inline-block;padding-right: 100px">
+        <div>
+            <div style="font-size: 25px">复制syslog告警信息</div>
+            <div><textarea  type="text" name="syslog_alarm_words"  placeholder="复制syslog告警信息" style="width: 800px;height: 200px" >{{ syslog_alarm_words }}</textarea></div>
+        </div>
+        {% csrf_token %}
+    <div><input type="submit" value="点击查询" style="margin-left: 730px"></div>
+</form>
+
+<a href="/logout" style="float: right">退出登录</a>
+<a href="/query_crt" style="float: right;padding-right: 20px">onu快查CRT</a>
+<a href="/sql_cutting_query" style="float: right;padding-right: 20px">割接快查</a>
+
+
+
+
+
+    <!--style='white-space:pre;总算找到了，&nbsp;只有在.html中才有效，即使在web页面编辑也是无效-->
+    <!--div若想监控keydown，必须设置tabindex="1"-->
+    <div id="query_onu_info" style='white-space:pre;background-color: black;color:#00FF00;font-size: 15px;font-weight: 500;line-height: 12pt;word-spacing: 5px;' tabindex="1">{{ query_result }}</div>
+
+
+
+
+
+</body>
+<script src="/statics/jquery-2.1.4.min.js"></script>
+<script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</html>
