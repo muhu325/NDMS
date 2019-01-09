@@ -33,7 +33,7 @@ class MyDevice(admin.ModelAdmin):
                     # 将子线程对象添加到列表中
                 else:
                     print("%s 该设备不是epon设备"%obj.IP)
-            time.sleep(10)
+            time.sleep(3)
         else:
             print("程序运行中，无效")
         pool.shutdown(wait=False)
